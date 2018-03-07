@@ -38,15 +38,17 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	squad_plugin.py 
+	squad_plugin.py \
+	squad_gui.py
 
 PLUGINNAME = SquadPlugin
 
 PY_FILES = \
 	__init__.py \
-	squad_plugin.py 
+	squad_plugin.py \
+	squad_gui.py
 
-UI_FILES = 
+UI_FILES = squad_gui.ui
 
 EXTRAS = metadata.txt 
 

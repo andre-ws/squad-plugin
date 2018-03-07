@@ -37,6 +37,7 @@ from processing.core.Processing import Processing
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from qgis.PyQt import uic
 from qgis.core import QGis, QgsFeature, QgsGeometry, QgsPoint
 from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
@@ -44,20 +45,24 @@ from processing.core.parameters import ParameterVector
 from processing.core.parameters import ParameterTableField
 from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
-from qgis.gui import QgsMessageBar
-
+from qgis.gui import *
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
+Ui_Squad = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'squad_gui.ui'))[0]
 
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
+class SquadDialog(QDialog, Ui_Squad):
+    def __init__(self, parent):
+        QDialog.__init__(self)
+        self.iface = parent
+        self.setupUi(self)
 
 class SquadPluginPlugin:
-
     def __init__(self, iface):
         self.iface = iface
-        Processing.initialize()
+        #Processing.initialize()
 
     def initGui(self):
         # create action that will start plugin configuration
@@ -78,4 +83,5 @@ class SquadPluginPlugin:
     
     def run(self):
         # create and show a configuration dialog or something similar
-        self.iface.messageBar().pushMessage("Success", "Hello world!", level=QgsMessageBar.INFO)
+        dlg = SquadDialog(self.iface)
+        dlg.exec_()
