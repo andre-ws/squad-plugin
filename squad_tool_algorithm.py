@@ -30,13 +30,21 @@ __copyright__ = '(C) 2018 by André William dos Santos Silva'
 __revision__ = '$Format:%H$'
 
 from PyQt4.QtCore import QSettings
+from PyQt4.QtCore import QVariant
+from PyQt4 import QtCore
+from qgis.core import QgsVectorLayer
 from qgis.core import QgsVectorFileWriter
+from qgis.core import QgsField
+from qgis.core import QgsFields
+from qgis.core import QgsFeature
 
 from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.parameters import ParameterVector
+from processing.core.parameters import ParameterTableField
 from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
 
+from squad_analysis import SquadAnalysis
 
 class SquadToolAlgorithm(GeoAlgorithm):
     """This is an example algorithm that takes a vector layer and
@@ -55,8 +63,15 @@ class SquadToolAlgorithm(GeoAlgorithm):
     # used when calling the algorithm from another algorithm, or when
     # calling from the QGIS console.
 
+    SITES_LAYER = 'SITES_LAYER'
+    SITE_ADMIN_UNIT_FIELD = 'SITE_ADMIN_UNIT_FIELD'
+    SITE_LONGITUDE_FIELD = 'SITE_LONGITUDE_FIELD'
+    SITE_LATITUDE_FIELD = 'SITE_LATITUDE_FIELD'
+    SITE_NAME_FIELD = 'SITE_NAME_FIELD'
+    SITE_ID_FIELD = 'SITE_ID_FIELD'
+    ADMIN_UNITS_LAYER = 'ADMIN_UNITS_LAYER'
+    ADMIN_UNIT_NAME_FIELD = 'ADMIN_UNIT_NAME_FIELD'
     OUTPUT_LAYER = 'OUTPUT_LAYER'
-    INPUT_LAYER = 'INPUT_LAYER'
 
     def defineCharacteristics(self):
         """Here we define the inputs and output of the algorithm, along
@@ -71,49 +86,58 @@ class SquadToolAlgorithm(GeoAlgorithm):
 
         # We add the input vector layer. It can have any kind of geometry
         # It is a mandatory (not optional) one, hence the False argument
-        self.addParameter(ParameterVector(self.INPUT_LAYER,
-            self.tr('Input layer'), [ParameterVector.VECTOR_TYPE_ANY], False))
+        self.addParameter(ParameterVector(self.SITES_LAYER,
+            self.tr('Site File'), [ParameterVector.VECTOR_TYPE_ANY], False))
+        self.addParameter(ParameterTableField(self.SITE_ADMIN_UNIT_FIELD,
+            self.tr('Site Admin Unit Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+        self.addParameter(ParameterTableField(self.SITE_LONGITUDE_FIELD,
+            self.tr('Site Longitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+        self.addParameter(ParameterTableField(self.SITE_LATITUDE_FIELD,
+            self.tr('Site Latitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+        self.addParameter(ParameterTableField(self.SITE_NAME_FIELD,
+            self.tr('Site Name Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+        self.addParameter(ParameterTableField(self.SITE_ID_FIELD,
+            self.tr('Site ID Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+        self.addParameter(ParameterVector(self.ADMIN_UNITS_LAYER,
+            self.tr('Administrative Units File'), [ParameterVector.VECTOR_TYPE_ANY], False))
+        self.addParameter(ParameterTableField(self.ADMIN_UNIT_NAME_FIELD,
+            self.tr('Admin Unit Name Field'), self.ADMIN_UNITS_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
 
         # We add a vector layer as output
         self.addOutput(OutputVector(self.OUTPUT_LAYER,
-            self.tr('Output layer with selected features')))
+            self.tr('Site Anomalies Output')))
 
     def processAlgorithm(self, progress):
         """Here is where the processing itself takes place."""
 
         # The first thing to do is retrieve the values of the parameters
         # entered by the user
-        inputFilename = self.getParameterValue(self.INPUT_LAYER)
-        output = self.getOutputValue(self.OUTPUT_LAYER)
-
-        # Input layers vales are always a string with its location.
+        sitesName = self.getParameterValue(self.SITES_LAYER)
+        sitesFieldUnit = self.getParameterValue(self.SITE_ADMIN_UNIT_FIELD)
+        sitesFieldLong = self.getParameterValue(self.SITE_LONGITUDE_FIELD)
+        sitesFieldLat = self.getParameterValue(self.SITE_LATITUDE_FIELD)
+        sitesFieldName = self.getParameterValue(self.SITE_NAME_FIELD)
+        sitesFieldId = self.getParameterValue(self.SITE_ID_FIELD)
+        adminsName = self.getParameterValue(self.ADMIN_UNITS_LAYER)
+        adminsFieldName = self.getParameterValue(self.ADMIN_UNIT_NAME_FIELD)
+        outputName = self.getOutputValue(self.OUTPUT_LAYER)
+        
+        # Input layers values are always a string with its location.
         # That string can be converted into a QGIS object (a
         # QgsVectorLayer in this case) using the
         # processing.getObjectFromUri() method.
-        vectorLayer = dataobjects.getObjectFromUri(inputFilename)
-
-        # And now we can process
-
-        # First we create the output layer. The output value entered by
-        # the user is a string containing a filename, so we can use it
-        # directly
-        settings = QSettings()
-        systemEncoding = settings.value('/UI/encoding', 'System')
-        provider = vectorLayer.dataProvider()
-        writer = QgsVectorFileWriter(output, systemEncoding,
-                                     provider.fields(),
-                                     provider.geometryType(), provider.crs())
-
-        # Now we take the features from input layer and add them to the
-        # output. Method features() returns an iterator, considering the
-        # selection that might exist in layer and the configuration that
-        # indicates should algorithm use only selected features or all
-        # of them
-        features = vector.features(vectorLayer)
-        for f in features:
-            writer.addFeature(f)
-
-        # There is nothing more to do here. We do not have to open the
-        # layer that we have created. The framework will take care of
-        # that, or will handle it if this algorithm is executed within
-        # a complex model
+        # sitesLayer = dataobjects.getObjectFromUri(sitesName)
+        # adminsLayer = dataobjects.getObjectFromUri(adminsName)
+        
+        # Call functions
+        analysis = SquadAnalysis(
+            sitesName,
+            sitesFieldUnit,
+            sitesFieldLong,
+            sitesFieldLat,
+            sitesFieldName,
+            sitesFieldId,
+            adminsName,
+            adminsFieldName,
+            outputName)
+        analysis.execute(progress)
