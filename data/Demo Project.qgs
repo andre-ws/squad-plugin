@@ -3,12 +3,15 @@
   <title></title>
   <autotransaction active="0"/>
   <evaluateDefaultValues active="0"/>
-  <layer-tree-group expanded="1" checked="Qt::Checked" name="">
+  <layer-tree-group expanded="1" checked="Qt::PartiallyChecked" name="">
     <customproperties/>
+    <layer-tree-layer expanded="1" checked="Qt::Unchecked" id="Site_Anomalies_Output20180315212749295" name="Site Anomalies Output">
+      <customproperties/>
+    </layer-tree-layer>
     <layer-tree-layer expanded="1" checked="Qt::Checked" id="Demoland_data_coded_Health_facilities20180307075950135" name="Demoland_data_coded Health_facilities">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" checked="Qt::Checked" id="Demoland_data_coded_Districts_Regions20180307075950120" name="Demoland_data_coded Districts_Regions">
+    <layer-tree-layer expanded="1" checked="Qt::Unchecked" id="Demoland_data_coded_Districts_Regions20180307075950120" name="Demoland_data_coded Districts_Regions">
       <customproperties/>
     </layer-tree-layer>
   </layer-tree-group>
@@ -16,10 +19,10 @@
   <mapcanvas>
     <units>degrees</units>
     <extent>
-      <xmin>-45.55310052194031556</xmin>
-      <ymin>29.68441547370215261</ymin>
-      <xmax>-44.15797139825811968</xmax>
-      <ymax>31.20917543368350522</ymax>
+      <xmin>-44.7207812372160447</xmin>
+      <ymin>30.16926800444004897</ymin>
+      <xmax>-44.64442216130576924</xmax>
+      <ymax>30.25647540292922599</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>0</projections>
@@ -42,17 +45,23 @@
     <custom-order enabled="0">
       <item>Demoland_data_coded_Districts_Regions20180307075950120</item>
       <item>Demoland_data_coded_Health_facilities20180307075950135</item>
+      <item>Site_Anomalies_Output20180315212749295</item>
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="Site Anomalies Output" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="Site_Anomalies_Output20180315212749295" visible="0"/>
+      </filegroup>
+    </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="Demoland_data_coded Health_facilities" showFeatureCount="0">
       <filegroup open="true" hidden="false">
         <legendlayerfile isInOverview="0" layerid="Demoland_data_coded_Health_facilities20180307075950135" visible="1"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="Demoland_data_coded Districts_Regions" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="Demoland_data_coded Districts_Regions" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="Demoland_data_coded_Districts_Regions20180307075950120" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="Demoland_data_coded_Districts_Regions20180307075950120" visible="0"/>
       </filegroup>
     </legendlayer>
   </legend>
@@ -65,7 +74,7 @@
         <ymax>31.17287162511252063</ymax>
       </extent>
       <id>Demoland_data_coded_Districts_Regions20180307075950120</id>
-      <datasource>X:\GDrive\MEASURE\SQUAD\SQUAD_tool_demo\Demoland_data_coded.gdb|layerid=1</datasource>
+      <datasource>../../../MEASURE/SQUAD/SQUAD_tool_demo/Demoland_data_coded.gdb|layerid=1</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -83,7 +92,7 @@
         </spatialrefsys>
       </srs>
       <provider encoding="UTF-8">ogr</provider>
-      <previewExpression></previewExpression>
+      <previewExpression>COALESCE( "Dist_name", '&lt;NULL>' )</previewExpression>
       <vectorjoins/>
       <layerDependencies/>
       <expressionfields/>
@@ -158,7 +167,7 @@
         <multilineenabled fieldname="" on=""/>
         <selectedonly on=""/>
       </labelattributes>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <aliases>
         <alias field="OBJECTID" index="0" name=""/>
         <alias field="Region" index="1" name=""/>
@@ -171,12 +180,20 @@
       <excludeAttributesWFS/>
       <attributeactions default="-1"/>
       <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="125484544">
-        <columns/>
+        <columns>
+          <column width="-1" hidden="0" type="field" name="OBJECTID"/>
+          <column width="-1" hidden="0" type="field" name="Region"/>
+          <column width="-1" hidden="0" type="field" name="Country"/>
+          <column width="-1" hidden="0" type="field" name="Dist_name"/>
+          <column width="-1" hidden="0" type="field" name="Shape_Length"/>
+          <column width="-1" hidden="0" type="field" name="Shape_Area"/>
+          <column width="-1" hidden="1" type="actions"/>
+        </columns>
       </attributetableconfig>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
       <editorlayout>generatedlayout</editorlayout>
@@ -202,7 +219,7 @@
         <ymax>31.13618070933381432</ymax>
       </extent>
       <id>Demoland_data_coded_Health_facilities20180307075950135</id>
-      <datasource>X:\GDrive\MEASURE\SQUAD\SQUAD_tool_demo\Demoland_data_coded.gdb</datasource>
+      <datasource>../../../MEASURE/SQUAD/SQUAD_tool_demo/Demoland_data_coded.gdb</datasource>
       <keywordList>
         <value></value>
       </keywordList>
@@ -220,7 +237,7 @@
         </spatialrefsys>
       </srs>
       <provider encoding="UTF-8">ogr</provider>
-      <previewExpression></previewExpression>
+      <previewExpression>COALESCE( "NAME", '&lt;NULL>' )</previewExpression>
       <vectorjoins/>
       <layerDependencies/>
       <expressionfields/>
@@ -308,7 +325,7 @@
         <multilineenabled fieldname="" on=""/>
         <selectedonly on=""/>
       </labelattributes>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <aliases>
         <alias field="OBJECTID" index="0" name=""/>
         <alias field="NAME" index="1" name=""/>
@@ -323,7 +340,215 @@
       <excludeAttributesWFS/>
       <attributeactions default="-1"/>
       <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="177260288">
-        <columns/>
+        <columns>
+          <column width="-1" hidden="0" type="field" name="OBJECTID"/>
+          <column width="-1" hidden="0" type="field" name="NAME"/>
+          <column width="-1" hidden="0" type="field" name="Region"/>
+          <column width="-1" hidden="0" type="field" name="Country"/>
+          <column width="182" hidden="0" type="field" name="POINT_X"/>
+          <column width="-1" hidden="0" type="field" name="POINT_Y"/>
+          <column width="-1" hidden="0" type="field" name="District"/>
+          <column width="-1" hidden="0" type="field" name="UID"/>
+          <column width="-1" hidden="1" type="actions"/>
+        </columns>
+      </attributetableconfig>
+      <editform>.</editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath>.</editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>generatedlayout</editorlayout>
+      <widgets/>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <defaults>
+        <default field="OBJECTID" expression=""/>
+        <default field="NAME" expression=""/>
+        <default field="Region" expression=""/>
+        <default field="Country" expression=""/>
+        <default field="POINT_X" expression=""/>
+        <default field="POINT_Y" expression=""/>
+        <default field="District" expression=""/>
+        <default field="UID" expression=""/>
+      </defaults>
+    </maplayer>
+    <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Point" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
+      <id>Site_Anomalies_Output20180315212749295</id>
+      <datasource>C:\Users\geomapa\AppData\Local\Temp\processingcee26787f12742dbb03051dce5a29c10\d81e59d4884e412592e2643693717537\OUTPUTLAYER.shp</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>Site Anomalies Output</layername>
+      <srs>
+        <spatialrefsys>
+          <proj4>+proj=longlat +datum=WGS84 +no_defs</proj4>
+          <srsid>3452</srsid>
+          <srid>4326</srid>
+          <authid>EPSG:4326</authid>
+          <description>WGS 84</description>
+          <projectionacronym>longlat</projectionacronym>
+          <ellipsoidacronym>WGS84</ellipsoidacronym>
+          <geographicflag>true</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <previewExpression>COALESCE( "NAME", '&lt;NULL>' )</previewExpression>
+      <vectorjoins/>
+      <layerDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="">
+        <map-layer-style name=""/>
+      </map-layer-style-manager>
+      <edittypes>
+        <edittype widgetv2type="TextEdit" name="OBJECTID">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="NAME">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Region">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Country">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="POINT_X">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="POINT_Y">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="District">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="UID">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Point_X_TX">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Point_Y_TX">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_1">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_2">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_3">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_4">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_5">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="Anomaly_6">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+      </edittypes>
+      <renderer-v2 forceraster="0" symbollevels="0" type="singleSymbol" enableorderby="0">
+        <symbols>
+          <symbol alpha="1" clip_to_extent="1" type="marker" name="0">
+            <layer pass="0" class="SimpleMarker" locked="0">
+              <prop k="angle" v="0"/>
+              <prop k="color" v="190,27,101,255"/>
+              <prop k="horizontal_anchor_point" v="1"/>
+              <prop k="joinstyle" v="bevel"/>
+              <prop k="name" v="circle"/>
+              <prop k="offset" v="0,0"/>
+              <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="offset_unit" v="MM"/>
+              <prop k="outline_color" v="0,0,0,255"/>
+              <prop k="outline_style" v="solid"/>
+              <prop k="outline_width" v="0"/>
+              <prop k="outline_width_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="outline_width_unit" v="MM"/>
+              <prop k="scale_method" v="diameter"/>
+              <prop k="size" v="2"/>
+              <prop k="size_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="size_unit" v="MM"/>
+              <prop k="vertical_anchor_point" v="1"/>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale scalemethod="diameter"/>
+      </renderer-v2>
+      <labeling type="simple"/>
+      <customproperties/>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerTransparency>0</layerTransparency>
+      <displayfield>NAME</displayfield>
+      <label>0</label>
+      <labelattributes>
+        <label fieldname="" text="Label"/>
+        <family fieldname="" name="MS Shell Dlg 2"/>
+        <size fieldname="" units="pt" value="12"/>
+        <bold fieldname="" on="0"/>
+        <italic fieldname="" on="0"/>
+        <underline fieldname="" on="0"/>
+        <strikeout fieldname="" on="0"/>
+        <color fieldname="" red="0" blue="0" green="0"/>
+        <x fieldname=""/>
+        <y fieldname=""/>
+        <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+        <angle fieldname="" value="0" auto="0"/>
+        <alignment fieldname="" value="center"/>
+        <buffercolor fieldname="" red="255" blue="255" green="255"/>
+        <buffersize fieldname="" units="pt" value="1"/>
+        <bufferenabled fieldname="" on=""/>
+        <multilineenabled fieldname="" on=""/>
+        <selectedonly on=""/>
+      </labelattributes>
+      <annotationform></annotationform>
+      <aliases>
+        <alias field="OBJECTID" index="0" name=""/>
+        <alias field="NAME" index="1" name=""/>
+        <alias field="Region" index="2" name=""/>
+        <alias field="Country" index="3" name=""/>
+        <alias field="POINT_X" index="4" name=""/>
+        <alias field="POINT_Y" index="5" name=""/>
+        <alias field="District" index="6" name=""/>
+        <alias field="UID" index="7" name=""/>
+        <alias field="Point_X_TX" index="8" name=""/>
+        <alias field="Point_Y_TX" index="9" name=""/>
+        <alias field="Anomaly_1" index="10" name=""/>
+        <alias field="Anomaly_2" index="11" name=""/>
+        <alias field="Anomaly_3" index="12" name=""/>
+        <alias field="Anomaly_4" index="13" name=""/>
+        <alias field="Anomaly_5" index="14" name=""/>
+        <alias field="Anomaly_6" index="15" name=""/>
+      </aliases>
+      <excludeAttributesWMS/>
+      <excludeAttributesWFS/>
+      <attributeactions default="-1"/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="&quot;Point_X_TX&quot;" sortOrder="0">
+        <columns>
+          <column width="-1" hidden="0" type="field" name="OBJECTID"/>
+          <column width="-1" hidden="0" type="field" name="NAME"/>
+          <column width="-1" hidden="0" type="field" name="Region"/>
+          <column width="-1" hidden="0" type="field" name="Country"/>
+          <column width="140" hidden="0" type="field" name="POINT_X"/>
+          <column width="-1" hidden="0" type="field" name="POINT_Y"/>
+          <column width="-1" hidden="0" type="field" name="District"/>
+          <column width="-1" hidden="0" type="field" name="UID"/>
+          <column width="128" hidden="0" type="field" name="Point_X_TX"/>
+          <column width="-1" hidden="0" type="field" name="Point_Y_TX"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_1"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_2"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_3"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_4"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_5"/>
+          <column width="-1" hidden="0" type="field" name="Anomaly_6"/>
+          <column width="-1" hidden="1" type="actions"/>
+        </columns>
       </attributetableconfig>
       <editform></editform>
       <editforminit/>
@@ -346,6 +571,14 @@
         <default field="POINT_Y" expression=""/>
         <default field="District" expression=""/>
         <default field="UID" expression=""/>
+        <default field="Point_X_TX" expression=""/>
+        <default field="Point_Y_TX" expression=""/>
+        <default field="Anomaly_1" expression=""/>
+        <default field="Anomaly_2" expression=""/>
+        <default field="Anomaly_3" expression=""/>
+        <default field="Anomaly_4" expression=""/>
+        <default field="Anomaly_5" expression=""/>
+        <default field="Anomaly_6" expression=""/>
       </defaults>
     </maplayer>
   </projectlayers>
@@ -373,9 +606,35 @@
     </Gui>
     <Digitizing>
       <DefaultSnapToleranceUnit type="int">2</DefaultSnapToleranceUnit>
+      <LayerSnappingList type="QStringList">
+        <value>Demoland_data_coded_Districts_Regions20180307075950120</value>
+        <value>Demoland_data_coded_Health_facilities20180307075950135</value>
+        <value>Site_Anomalies_Output20180315212749295</value>
+      </LayerSnappingList>
+      <LayerSnappingEnabledList type="QStringList">
+        <value>disabled</value>
+        <value>disabled</value>
+        <value>disabled</value>
+      </LayerSnappingEnabledList>
       <SnappingMode type="QString">current_layer</SnappingMode>
+      <AvoidIntersectionsList type="QStringList"/>
+      <LayerSnappingToleranceUnitList type="QStringList">
+        <value>2</value>
+        <value>2</value>
+        <value>2</value>
+      </LayerSnappingToleranceUnitList>
+      <LayerSnapToList type="QStringList">
+        <value>to_vertex_and_segment</value>
+        <value>to_vertex_and_segment</value>
+        <value>to_vertex_and_segment</value>
+      </LayerSnapToList>
       <DefaultSnapType type="QString">off</DefaultSnapType>
       <DefaultSnapTolerance type="double">0</DefaultSnapTolerance>
+      <LayerSnappingToleranceList type="QStringList">
+        <value>0.000000</value>
+        <value>0.000000</value>
+        <value>0.000000</value>
+      </LayerSnappingToleranceList>
     </Digitizing>
     <PositionPrecision>
       <DecimalPlaces type="int">2</DecimalPlaces>

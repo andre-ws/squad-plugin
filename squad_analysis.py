@@ -78,27 +78,60 @@ class SquadAnalysis:
         self.adminsFieldName = _adminsFieldName
         self.outputName = _outputName
 
+    def createOutputFields(self, baseProvider):
+        fields = QgsFields(baseProvider.fields())
+        fields.append(QgsField(self.TXT_LONG_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(self.TXT_LAT_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(self.ANOMALY_1, QVariant.Int))
+        fields.append(QgsField(self.ANOMALY_2, QVariant.Int))
+        fields.append(QgsField(self.ANOMALY_3, QVariant.Int))
+        fields.append(QgsField(self.ANOMALY_4, QVariant.Int))
+        fields.append(QgsField(self.ANOMALY_5, QVariant.Int))
+        fields.append(QgsField(self.ANOMALY_6, QVariant.Int))    
+        return fields   
+
+    # def anomaly2(self, x, y):
+        # if x.count('.') > 0:
+        #     (size, precision) = x.split('.')        
+
     def execute(self, progress):
         # First we create the output layer. The output value entered by
         # the user is a string containing a filename, so we can use it
         # directly
         sitesLayer = processing.getObjectFromUri(self.sitesName)
         sitesProvider = sitesLayer.dataProvider()
-        outputFields = QgsFields(sitesProvider.fields())
-        outputFields.append(QgsField(self.TXT_LONG_FIELD, QVariant.String, len=100))
-        outputFields.append(QgsField(self.TXT_LAT_FIELD, QVariant.String, len=100))
-        outputFields.append(QgsField(self.ANOMALY_1, QVariant.Int))
-        outputFields.append(QgsField(self.ANOMALY_2, QVariant.Int))
-        outputFields.append(QgsField(self.ANOMALY_3, QVariant.Int))
-        outputFields.append(QgsField(self.ANOMALY_4, QVariant.Int))
-        outputFields.append(QgsField(self.ANOMALY_5, QVariant.Int))
-        outputFields.append(QgsField(self.ANOMALY_6, QVariant.Int))
+        outputFields = self.createOutputFields(sitesProvider)
 
-        # Temp layer
-        tempLayer = QgsVectorLayer("Point", "temp_layer", "memory")
-        tempProvider = tempLayer.dataProvider()
-        tempProvider.addAttributes(outputFields)
-        tempLayer.updateFields()
+        anomaly1 = set()
+        anomaly2 = set()
+        anomaly3 = set()
+        anomaly4 = set()
+        anomaly5 = set()
+        anomaly6 = set()
+
+        # Cache
+        longLatSet = set()
+        nameSet = set()
+        features = vector.features(sitesLayer)
+        for f in features:
+            id = f[self.sitesFieldId]
+            x = f[self.sitesFieldLong]
+            y = f[self.sitesFieldLat]
+            longLat = str(x) + ',' + str(y)
+            if not (x and y):
+                anomaly1.add(id)
+            # else if checkAnomaly2(f):
+                # anomaly2.add(id)
+            else:
+                if longLat in longLatSet:
+                    anomaly3.add(longLat)
+                else:
+                    longLatSet.add(longLat)
+            name = f[self.sitesFieldName]
+            if name in nameSet:
+                anomaly4.add(name)
+            else:
+                nameSet.add(name)
 
         # Output layer
         settings = QSettings()
@@ -112,6 +145,11 @@ class SquadAnalysis:
 
         features = vector.features(sitesLayer)
         for f in features:
+            id = f[self.sitesFieldId]
+            x = str(f[self.sitesFieldLong])
+            y = str(f[self.sitesFieldLat])
+            longLat = x + ',' + y
+            name = f[self.sitesFieldName]
             newFeature = QgsFeature(outputFields)
             newFeature.setGeometry(f.geometry())
             columns = f.fields()
@@ -123,9 +161,15 @@ class SquadAnalysis:
             txtLat = f[self.sitesFieldLat]
             newFeature[self.TXT_LONG_FIELD] = txtLong
             newFeature[self.TXT_LAT_FIELD] = txtLat
-            newFeature[self.ANOMALY_1] = 1
-            # if strLong.count('.') > 0:
-                # (size, precision) = strLong.split('.')
+
+            if id in anomaly1:
+                newFeature[self.ANOMALY_1] = 1
+            # else if id in anomaly2:
+                # newFeature[self.ANOMALY_2] = 1
+            elif longLat in anomaly3:
+                newFeature[self.ANOMALY_3] = 1
+            elif name in anomaly4:
+                newFeature[self.ANOMALY_4] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
@@ -133,7 +177,7 @@ class SquadAnalysis:
             # indicates should algorithm use only selected features or all
             # of them
             writer.addFeature(newFeature)
-            progress.setText(str(ok))
+            # progress.setText(str(ok))
         del writer
 
         # There is nothing more to do here. We do not have to open the
