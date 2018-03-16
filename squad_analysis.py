@@ -90,9 +90,14 @@ class SquadAnalysis:
         fields.append(QgsField(self.ANOMALY_6, QVariant.Int))    
         return fields   
 
-    # def anomaly2(self, x, y):
-        # if x.count('.') > 0:
-        #     (size, precision) = x.split('.')        
+    def checkAccuracy(self, number):
+        ok = False
+        s = str(number)
+        if s.count('.') > 0:
+            (size, precision) = s.split('.')
+            if len(precision) >= 3:
+                ok = True
+        return ok
 
     def execute(self, progress):
         # First we create the output layer. The output value entered by
@@ -120,8 +125,8 @@ class SquadAnalysis:
             longLat = str(x) + ',' + str(y)
             if not (x and y):
                 anomaly1.add(id)
-            # else if checkAnomaly2(f):
-                # anomaly2.add(id)
+            elif not (self.checkAccuracy(x) and self.checkAccuracy(y)):
+                anomaly2.add(id)
             else:
                 if longLat in longLatSet:
                     anomaly3.add(longLat)
@@ -164,8 +169,8 @@ class SquadAnalysis:
 
             if id in anomaly1:
                 newFeature[self.ANOMALY_1] = 1
-            # else if id in anomaly2:
-                # newFeature[self.ANOMALY_2] = 1
+            elif id in anomaly2:
+                newFeature[self.ANOMALY_2] = 1
             elif longLat in anomaly3:
                 newFeature[self.ANOMALY_3] = 1
             elif name in anomaly4:
