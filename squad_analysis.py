@@ -37,6 +37,7 @@ from qgis.core import QgsVectorFileWriter
 from qgis.core import QgsField
 from qgis.core import QgsFields
 from qgis.core import QgsFeature
+
 from qgis.core import *
 
 import processing
@@ -77,6 +78,9 @@ class SquadAnalysis:
         self.adminsName = _adminsName
         self.adminsFieldName = _adminsFieldName
         self.outputName = _outputName
+        self.sitesLayer = processing.getObjectFromUri(self.sitesName)
+        self.adminsLayer = processing.getObjectFromUri(self.adminsName)
+
 
     def createOutputFields(self, baseProvider):
         fields = QgsFields(baseProvider.fields())
@@ -99,12 +103,16 @@ class SquadAnalysis:
                 ok = True
         return ok
 
+    def findDistrict(self, name):
+        exp = QgsExpression("{} = \'{}\'".format(self.adminsFieldName, name))
+        request = QgsFeatureRequest(exp)
+        return next((f for f in self.adminsLayer.getFeatures(request)), None)
+
     def execute(self, progress):
         # First we create the output layer. The output value entered by
         # the user is a string containing a filename, so we can use it
         # directly
-        sitesLayer = processing.getObjectFromUri(self.sitesName)
-        sitesProvider = sitesLayer.dataProvider()
+        sitesProvider = self.sitesLayer.dataProvider()
         outputFields = self.createOutputFields(sitesProvider)
 
         anomaly1 = set()
@@ -117,7 +125,7 @@ class SquadAnalysis:
         # Cache
         longLatSet = set()
         nameSet = set()
-        features = vector.features(sitesLayer)
+        features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
             x = f[self.sitesFieldLong]
@@ -138,6 +146,24 @@ class SquadAnalysis:
             else:
                 nameSet.add(name)
 
+            districtName = f[self.sitesFieldUnit]
+            district = self.findDistrict(districtName)
+            if district:
+                if not f.geometry().within(district.geometry()):
+                    results = district.geometry().closestSegmentWithContext(f.geometry().asPoint())
+                    (sqrDist, minDistPoint, afterVertex) = results
+                    distance = QgsDistanceArea()
+                    crs = QgsCoordinateReferenceSystem()
+                    crs.createFromSrsId(4326)
+                    distance.setSourceCrs(crs)
+                    distance.setEllipsoidalMode(True)
+                    distance.setEllipsoid('WGS84')
+                    m = distance.measureLine(f.geometry().asPoint(), minDistPoint) 
+                    if m <= 2000:
+                        anomaly5.add(id)
+                    else:
+                        anomaly6.add(id)
+
         # Output layer
         settings = QSettings()
         systemEncoding = settings.value('/UI/encoding', 'System')
@@ -148,7 +174,7 @@ class SquadAnalysis:
             sitesProvider.geometryType(),
             sitesProvider.crs())
 
-        features = vector.features(sitesLayer)
+        features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
             x = str(f[self.sitesFieldLong])
@@ -175,6 +201,10 @@ class SquadAnalysis:
                 newFeature[self.ANOMALY_3] = 1
             elif name in anomaly4:
                 newFeature[self.ANOMALY_4] = 1
+            elif id in anomaly5:
+                newFeature[self.ANOMALY_5] = 1
+            elif id in anomaly6:
+                newFeature[self.ANOMALY_6] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
