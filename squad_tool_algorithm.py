@@ -102,19 +102,19 @@ class SquadToolAlgorithm(GeoAlgorithm):
         self.addParameter(ParameterVector(self.SITES_LAYER,
             self.tr('Site File'), [ParameterVector.VECTOR_TYPE_ANY], False))
         self.addParameter(ParameterTableField(self.SITE_ADMIN_UNIT_FIELD,
-            self.tr('Site Admin Unit Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Site Admin Unit Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
         self.addParameter(ParameterTableField(self.SITE_LONGITUDE_FIELD,
-            self.tr('Site Longitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Site Longitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_NUMBER, False))
         self.addParameter(ParameterTableField(self.SITE_LATITUDE_FIELD,
-            self.tr('Site Latitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Site Latitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_NUMBER, False))
         self.addParameter(ParameterTableField(self.SITE_NAME_FIELD,
-            self.tr('Site Name Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Site Name Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
         self.addParameter(ParameterTableField(self.SITE_ID_FIELD,
-            self.tr('Site ID Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Site ID Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
         self.addParameter(ParameterVector(self.ADMIN_UNITS_LAYER,
             self.tr('Administrative Units File'), [ParameterVector.VECTOR_TYPE_ANY], False))
         self.addParameter(ParameterTableField(self.ADMIN_UNIT_NAME_FIELD,
-            self.tr('Admin Unit Name Field'), self.ADMIN_UNITS_LAYER, ParameterTableField.DATA_TYPE_ANY, False))
+            self.tr('Admin Unit Name Field'), self.ADMIN_UNITS_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
 
         # We add a vector layer as output
         self.addOutput(OutputVector(self.OUTPUT_LAYER,
