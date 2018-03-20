@@ -29,9 +29,10 @@ __copyright__ = '(C) 2018 by André William dos Santos Silva'
 
 __revision__ = '$Format:%H$'
 
+from PyQt4 import QtCore
 from PyQt4.QtCore import QSettings
 from PyQt4.QtCore import QVariant
-from PyQt4 import QtCore
+from PyQt4.QtCore import QUrl
 from qgis.core import QgsVectorLayer
 from qgis.core import QgsVectorFileWriter
 from qgis.core import QgsField
@@ -44,6 +45,9 @@ from processing.core.parameters import ParameterTableField
 from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
 
+import os
+import resources
+from parameters_dict import parameters_desc
 from squad_analysis import SquadAnalysis
 
 class SquadToolAlgorithm(GeoAlgorithm):
@@ -72,6 +76,15 @@ class SquadToolAlgorithm(GeoAlgorithm):
     ADMIN_UNITS_LAYER = 'ADMIN_UNITS_LAYER'
     ADMIN_UNIT_NAME_FIELD = 'ADMIN_UNIT_NAME_FIELD'
     OUTPUT_LAYER = 'OUTPUT_LAYER'
+
+    def shortHelp(self):
+        DIRNAME = os.path.dirname(__file__)
+        path = os.path.join(DIRNAME, 'help.html')
+        if os.path.exists(path):
+            return open(path).read()
+
+    def getParameterDescriptions(self):
+        return parameters_desc
 
     def defineCharacteristics(self):
         """Here we define the inputs and output of the algorithm, along

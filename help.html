@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<b>SQUAD</b>
+<p>This tool searches through a point file to identify
+data anomalies that could indicate data quality issues. Each of these
+new columns will be created in the original site file. A &quot;1&quot;
+indicates that the anomaly exists. It is possible for a site to have
+multiple anomalies identified.</p>
+<ul>
+	<li><b>Anomaly_1:</b> Missing coordinate.
+	<li><b>Anomaly_2:</b> Coordinate is truncated.
+	<li><b>Anomaly_3:</b> The point has an identical
+	coordinate as another point in the file.
+	<li><b>Anomaly_4:</b> The point has an identical
+	name as another point in the file.
+	<li><b>Anomaly_5:</b> The point is outside of the
+	expected administrative unit, but is within two kilometers of the
+	expected unit's border.
+	<li><b>Anomaly_6:</b> The point is outside of the
+	expected administrative unit, and is greater than two kilometers of
+	the expected unit's border.
+</ul>
+<p><img src=":/plugins/squad-plugin/logos.jpg" alt="Logo"></p>
+</body>
+</html>
