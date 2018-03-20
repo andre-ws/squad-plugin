@@ -130,16 +130,17 @@ class SquadAnalysis:
             id = f[self.sitesFieldId]
             x = f[self.sitesFieldLong]
             y = f[self.sitesFieldLat]
-            longLat = str(x) + ',' + str(y)
-            if not (x and y):
-                anomaly1.add(id)
-            elif not (self.checkAccuracy(x) and self.checkAccuracy(y)):
-                anomaly2.add(id)
-            else:
-                if longLat in longLatSet:
-                    anomaly3.add(longLat)
+            if x and y:
+                if not (self.checkAccuracy(x) and self.checkAccuracy(y)):
+                    anomaly2.add(id)
                 else:
-                    longLatSet.add(longLat)
+                    longLat = str(round(x, 5)) + ',' + str(round(y, 5))
+                    if longLat in longLatSet:
+                        anomaly3.add(longLat)
+                    else:
+                        longLatSet.add(longLat)
+            else:
+                anomaly1.add(id)
             name = f[self.sitesFieldName]
             if name in nameSet:
                 anomaly4.add(name)
@@ -177,9 +178,10 @@ class SquadAnalysis:
         features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
-            x = str(f[self.sitesFieldLong])
-            y = str(f[self.sitesFieldLat])
-            longLat = x + ',' + y
+            x = f[self.sitesFieldLong]
+            y = f[self.sitesFieldLat]
+            if x and y:
+                longLat = str(round(x, 5)) + ',' + str(round(y, 5))
             name = f[self.sitesFieldName]
             newFeature = QgsFeature(outputFields)
             newFeature.setGeometry(f.geometry())
