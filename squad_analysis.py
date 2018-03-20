@@ -49,49 +49,58 @@ from processing.tools import dataobjects, vector
 from processing.tools.vector import VectorWriter
 
 class SquadAnalysis:
-    TXT_LONG_FIELD = 'Point_X_TXT'
-    TXT_LAT_FIELD = 'Point_Y_TXT'
-    ANOMALY_1 = "Anomaly_1"
-    ANOMALY_2 = "Anomaly_2"
-    ANOMALY_3 = "Anomaly_3"
-    ANOMALY_4 = "Anomaly_4"
-    ANOMALY_5 = "Anomaly_5"
-    ANOMALY_6 = "Anomaly_6"
+    STR_LONG_FIELD = 'Point_X_TXT'
+    STR_LAT_FIELD = 'Point_Y_TXT'
+    STR_ANOMALY_1 = "Anomaly_1"
+    STR_ANOMALY_2 = "Anomaly_2"
+    STR_ANOMALY_3 = "Anomaly_3"
+    STR_ANOMALY_4 = "Anomaly_4"
+    STR_ANOMALY_5 = "Anomaly_5"
+    STR_ANOMALY_6 = "Anomaly_6"
 
     def __init__(
             self,
-            _sitesName,
-            _sitesFieldUnit,
-            _sitesFieldLong,
-            _sitesFieldLat,
-            _sitesFieldName,
-            _sitesFieldId,
-            _adminsName,
-            _adminsFieldName,
-            _outputName):
-        self.sitesName = _sitesName
-        self.sitesFieldUnit = _sitesFieldUnit
-        self.sitesFieldLong = _sitesFieldLong
-        self.sitesFieldLat = _sitesFieldLat
-        self.sitesFieldName = _sitesFieldName
-        self.sitesFieldId = _sitesFieldId
-        self.adminsName = _adminsName
-        self.adminsFieldName = _adminsFieldName
-        self.outputName = _outputName
+            sitesName_,
+            sitesFieldUnit_,
+            sitesFieldLong_,
+            sitesFieldLat_,
+            sitesFieldName_,
+            sitesFieldId_,
+            adminsName_,
+            adminsFieldName_,
+            outputName_):
+        self.sitesName = sitesName_
+        self.sitesFieldUnit = sitesFieldUnit_
+        self.sitesFieldLong = sitesFieldLong_
+        self.sitesFieldLat = sitesFieldLat_
+        self.sitesFieldName = sitesFieldName_
+        self.sitesFieldId = sitesFieldId_
+        self.adminsName = adminsName_
+        self.adminsFieldName = adminsFieldName_
+        self.outputName = outputName_
         self.sitesLayer = processing.getObjectFromUri(self.sitesName)
         self.adminsLayer = processing.getObjectFromUri(self.adminsName)
 
+        self.anomalies1 = set()
+        self.anomalies2 = set()
+        self.anomalies3 = set()
+        self.anomalies4 = set()
+        self.anomalies5 = set()
+        self.anomalies6 = set()
+
+        self.longLatSet = set()
+        self.nameSet = set()
 
     def createOutputFields(self, baseProvider):
         fields = QgsFields(baseProvider.fields())
-        fields.append(QgsField(self.TXT_LONG_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(self.TXT_LAT_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(self.ANOMALY_1, QVariant.Int))
-        fields.append(QgsField(self.ANOMALY_2, QVariant.Int))
-        fields.append(QgsField(self.ANOMALY_3, QVariant.Int))
-        fields.append(QgsField(self.ANOMALY_4, QVariant.Int))
-        fields.append(QgsField(self.ANOMALY_5, QVariant.Int))
-        fields.append(QgsField(self.ANOMALY_6, QVariant.Int))    
+        fields.append(QgsField(self.STR_LONG_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(self.STR_LAT_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(self.STR_ANOMALY_1, QVariant.Int))
+        fields.append(QgsField(self.STR_ANOMALY_2, QVariant.Int))
+        fields.append(QgsField(self.STR_ANOMALY_3, QVariant.Int))
+        fields.append(QgsField(self.STR_ANOMALY_4, QVariant.Int))
+        fields.append(QgsField(self.STR_ANOMALY_5, QVariant.Int))
+        fields.append(QgsField(self.STR_ANOMALY_6, QVariant.Int))
         return fields   
 
     def checkAccuracy(self, number):
@@ -108,23 +117,7 @@ class SquadAnalysis:
         request = QgsFeatureRequest(exp)
         return next((f for f in self.adminsLayer.getFeatures(request)), None)
 
-    def execute(self, progress):
-        # First we create the output layer. The output value entered by
-        # the user is a string containing a filename, so we can use it
-        # directly
-        sitesProvider = self.sitesLayer.dataProvider()
-        outputFields = self.createOutputFields(sitesProvider)
-
-        anomaly1 = set()
-        anomaly2 = set()
-        anomaly3 = set()
-        anomaly4 = set()
-        anomaly5 = set()
-        anomaly6 = set()
-
-        # Cache
-        longLatSet = set()
-        nameSet = set()
+    def checkAnomalies(self):
         features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
@@ -132,20 +125,20 @@ class SquadAnalysis:
             y = f[self.sitesFieldLat]
             if x and y:
                 if not (self.checkAccuracy(x) and self.checkAccuracy(y)):
-                    anomaly2.add(id)
+                    self.anomalies2.add(id)
                 else:
                     longLat = str(round(x, 5)) + ',' + str(round(y, 5))
-                    if longLat in longLatSet:
-                        anomaly3.add(longLat)
+                    if longLat in self.longLatSet:
+                        self.anomalies3.add(longLat)
                     else:
-                        longLatSet.add(longLat)
+                        self.longLatSet.add(longLat)
             else:
-                anomaly1.add(id)
+                self.anomalies1.add(id)
             name = f[self.sitesFieldName]
-            if name in nameSet:
-                anomaly4.add(name)
+            if name in self.nameSet:
+                self.anomalies4.add(name)
             else:
-                nameSet.add(name)
+                self.nameSet.add(name)
 
             districtName = f[self.sitesFieldUnit]
             district = self.findDistrict(districtName)
@@ -161,11 +154,13 @@ class SquadAnalysis:
                     distance.setEllipsoid('WGS84')
                     m = distance.measureLine(f.geometry().asPoint(), minDistPoint) 
                     if m <= 2000:
-                        anomaly5.add(id)
+                        self.anomalies5.add(id)
                     else:
-                        anomaly6.add(id)
+                        self.anomalies6.add(id)
 
-        # Output layer
+    def writeOutput(self):
+        sitesProvider = self.sitesLayer.dataProvider()
+        outputFields = self.createOutputFields(sitesProvider)
         settings = QSettings()
         systemEncoding = settings.value('/UI/encoding', 'System')
         writer = processing.VectorWriter(
@@ -192,21 +187,21 @@ class SquadAnalysis:
 
             txtLong = f[self.sitesFieldLong]
             txtLat = f[self.sitesFieldLat]
-            newFeature[self.TXT_LONG_FIELD] = txtLong
-            newFeature[self.TXT_LAT_FIELD] = txtLat
+            newFeature[self.STR_LONG_FIELD] = txtLong
+            newFeature[self.STR_LAT_FIELD] = txtLat
 
-            if id in anomaly1:
-                newFeature[self.ANOMALY_1] = 1
-            elif id in anomaly2:
-                newFeature[self.ANOMALY_2] = 1
-            elif longLat in anomaly3:
-                newFeature[self.ANOMALY_3] = 1
-            elif name in anomaly4:
-                newFeature[self.ANOMALY_4] = 1
-            elif id in anomaly5:
-                newFeature[self.ANOMALY_5] = 1
-            elif id in anomaly6:
-                newFeature[self.ANOMALY_6] = 1
+            if id in self.anomalies1:
+                newFeature[self.STR_ANOMALY_1] = 1
+            elif id in self.anomalies2:
+                newFeature[self.STR_ANOMALY_2] = 1
+            elif longLat in self.anomalies3:
+                newFeature[self.STR_ANOMALY_3] = 1
+            elif name in self.anomalies4:
+                newFeature[self.STR_ANOMALY_4] = 1
+            elif id in self.anomalies5:
+                newFeature[self.STR_ANOMALY_5] = 1
+            elif id in self.anomalies6:
+                newFeature[self.STR_ANOMALY_6] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
@@ -217,6 +212,9 @@ class SquadAnalysis:
             # progress.setText(str(ok))
         del writer
 
+    def execute(self, progress):
+        self.checkAnomalies()
+        self.writeOutput()
         # There is nothing more to do here. We do not have to open the
         # layer that we have created. The framework will take care of
         # that, or will handle it if this algorithm is executed within
