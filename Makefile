@@ -38,17 +38,31 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	squad_tool.py 
+	squad_tool.py \
+	squad_tool_algorithm.py \
+	squad_tool_provider.py \
+	squad_analysis.py \
+	parameters_dict.py
 
-PLUGINNAME = SquadTool
+PLUGINNAME = squad-tool
 
 PY_FILES = \
 	__init__.py \
-	squad_tool.py 
+	squad_tool.py \
+	squad_tool_algorithm.py \
+	squad_tool_provider.py \
+	squad_analysis.py \
+	parameters_dict.py
 
 UI_FILES = 
 
-EXTRAS = metadata.txt 
+EXTRAS = \
+	metadata.txt \
+	help.html \
+	logos.jpg \
+	resources.py \
+	resources.qrc
+
 
 EXTRA_DIRS =
 
