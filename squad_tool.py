@@ -55,7 +55,7 @@ class SquadToolPlugin:
     def initGui(self):
         Processing.addProvider(self.provider)
 
-        self.action = QAction(QIcon(":/plugins/testplug/icon.png"), "SQUAD plugin", self.iface.mainWindow())
+        self.action = QAction(QIcon(":/plugins/squad-plugin/SQUAD_icon_v2_32x32.png"), "SQUAD plugin", self.iface.mainWindow())
         self.action.setObjectName("squadAction")
         self.action.setWhatsThis("Spatial Quality and Anomalies Diagnosis")
         self.action.setStatusTip("...")

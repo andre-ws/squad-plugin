@@ -47,6 +47,7 @@ from processing.core.parameters import ParameterTableField
 from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
 from processing.tools.vector import VectorWriter
+from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
 
 class SquadAnalysis:
     STR_LONG_FIELD = 'Point_X_TXT'
@@ -57,6 +58,8 @@ class SquadAnalysis:
     STR_ANOMALY_4 = "Anomaly_4"
     STR_ANOMALY_5 = "Anomaly_5"
     STR_ANOMALY_6 = "Anomaly_6"
+    STR_ANOMALY_7 = "Anomaly_7"
+    STR_ANOMALY_8 = "Anomaly_8"
 
     def __init__(
             self,
@@ -78,8 +81,14 @@ class SquadAnalysis:
         self.adminsName = adminsName_
         self.adminsFieldName = adminsFieldName_
         self.outputName = outputName_
-        self.sitesLayer = processing.getObjectFromUri(self.sitesName)
-        self.adminsLayer = processing.getObjectFromUri(self.adminsName)
+        try:
+            self.sitesLayer = processing.getObjectFromUri(self.sitesName)
+        except:
+            raise GeoAlgorithmExecutionException("Invalid Sites Layer")
+        try:
+            self.adminsLayer = processing.getObjectFromUri(self.adminsName)
+        except:
+            raise GeoAlgorithmExecutionException("Invalid Administrative Units layer")
 
         self.anomalies1 = set()
         self.anomalies2 = set()
@@ -87,6 +96,8 @@ class SquadAnalysis:
         self.anomalies4 = set()
         self.anomalies5 = set()
         self.anomalies6 = set()
+        self.anomalies7 = set()
+        self.anomalies8 = set()
 
         self.longLatSet = set()
         self.nameSet = set()
@@ -118,6 +129,8 @@ class SquadAnalysis:
         return next((f for f in self.adminsLayer.getFeatures(request)), None)
 
     def checkAnomalies(self):
+        i = 0
+        count = self.sitesLayer.dataProvider().featureCount()        
         features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
@@ -158,6 +171,10 @@ class SquadAnalysis:
                     else:
                         self.anomalies6.add(id)
 
+            i = i + 1
+            percent = ((i/float(count)) * 100)
+            self.progress.setPercentage(percent)
+
     def writeOutput(self):
         sitesProvider = self.sitesLayer.dataProvider()
         outputFields = self.createOutputFields(sitesProvider)
@@ -170,6 +187,8 @@ class SquadAnalysis:
             sitesProvider.geometryType(),
             sitesProvider.crs())
 
+        i = 0
+        count = self.sitesLayer.dataProvider().featureCount()
         features = vector.features(self.sitesLayer)
         for f in features:
             id = f[self.sitesFieldId]
@@ -194,14 +213,18 @@ class SquadAnalysis:
                 newFeature[self.STR_ANOMALY_1] = 1
             elif id in self.anomalies2:
                 newFeature[self.STR_ANOMALY_2] = 1
-            elif longLat in self.anomalies3:
+            if longLat in self.anomalies3:
                 newFeature[self.STR_ANOMALY_3] = 1
-            elif name in self.anomalies4:
+            if name in self.anomalies4:
                 newFeature[self.STR_ANOMALY_4] = 1
-            elif id in self.anomalies5:
+            if id in self.anomalies5:
                 newFeature[self.STR_ANOMALY_5] = 1
-            elif id in self.anomalies6:
+            if id in self.anomalies6:
                 newFeature[self.STR_ANOMALY_6] = 1
+            if id in self.anomalies8:
+                newFeature[self.STR_ANOMALY_8] = 1
+            elif id in self.anomalies7:
+                newFeature[self.STR_ANOMALY_7] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
@@ -209,10 +232,13 @@ class SquadAnalysis:
             # indicates should algorithm use only selected features or all
             # of them
             writer.addFeature(newFeature)
-            # progress.setText(str(ok))
+            i = i + 1
+            percent = ((i/float(count)) * 100) + 50
+            self.progress.setPercentage(percent)
         del writer
 
     def execute(self, progress):
+        self.progress = progress
         self.checkAnomalies()
         self.writeOutput()
         # There is nothing more to do here. We do not have to open the

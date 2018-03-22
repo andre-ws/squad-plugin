@@ -2,5 +2,6 @@
   <qresource prefix="/plugins/squad-plugin" >
      <file>help.html</file>
      <file>logos.jpg</file>
+     <file>SQUAD_icon_v2_32x32.png</file>
   </qresource>
 </RCC>
