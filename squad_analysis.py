@@ -180,7 +180,7 @@ class SquadAnalysis:
                         self.anomalies6.add(id)
 
             i = i + 1
-            percent = ((i/float(count)) * 100)
+            percent = ((i/float(count)) * 50)
             self.progress.setPercentage(percent)
 
     def writeOutput(self):
@@ -239,14 +239,18 @@ class SquadAnalysis:
             # of them
             writer.addFeature(newFeature)
             i = i + 1
-            percent = ((i/float(count)) * 100) + 50
+            percent = ((i/float(count)) * 50) + 50
             self.progress.setPercentage(percent)
         del writer
 
     def execute(self, progress):
         self.progress = progress
+        self.progress.setText('Checking for anomalies...')
         self.checkAnomalies()
+        self.progress.setText('Saving results...')
         self.writeOutput()
+        self.progress.setText('Done!')
+
         # There is nothing more to do here. We do not have to open the
         # layer that we have created. The framework will take care of
         # that, or will handle it if this algorithm is executed within
