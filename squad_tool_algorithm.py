@@ -44,6 +44,7 @@ from processing.core.parameters import ParameterVector
 from processing.core.parameters import ParameterTableField
 from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
+from processing.gui.AlgorithmDialog import AlgorithmDialog
 
 import os
 import resources
@@ -76,6 +77,11 @@ class SquadToolAlgorithm(GeoAlgorithm):
     ADMIN_UNITS_LAYER = 'ADMIN_UNITS_LAYER'
     ADMIN_UNIT_NAME_FIELD = 'ADMIN_UNIT_NAME_FIELD'
     OUTPUT_LAYER = 'OUTPUT_LAYER'
+
+    def getCustomParametersDialog(self):
+        customDialog = AlgorithmDialog(self)
+        customDialog.textShortHelp.setFixedWidth(450)
+        return customDialog
 
     def shortHelp(self):
         DIRNAME = os.path.dirname(__file__)
