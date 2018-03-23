@@ -112,6 +112,7 @@ class SquadAnalysis:
         fields.append(QgsField(self.STR_ANOMALY_4, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_5, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_6, QVariant.Int))
+        # fields.append(QgsField(self.STR_ANOMALY_7, QVariant.Int))
         return fields   
 
     def checkAccuracy(self, number):
@@ -124,9 +125,12 @@ class SquadAnalysis:
         return ok
 
     def findDistrict(self, name):
+        districts = []
         exp = QgsExpression("{} = \'{}\'".format(self.adminsFieldName, name))
         request = QgsFeatureRequest(exp)
-        return next((f for f in self.adminsLayer.getFeatures(request)), None)
+        for d in self.adminsLayer.getFeatures(request):
+            districts.append(d)
+        return districts
 
     def checkAnomalies(self):
         i = 0
@@ -139,12 +143,11 @@ class SquadAnalysis:
             if x and y:
                 if not (self.checkAccuracy(x) and self.checkAccuracy(y)):
                     self.anomalies2.add(id)
+                longLat = str(round(x, 5)) + ',' + str(round(y, 5))
+                if longLat in self.longLatSet:
+                    self.anomalies3.add(longLat)
                 else:
-                    longLat = str(round(x, 5)) + ',' + str(round(y, 5))
-                    if longLat in self.longLatSet:
-                        self.anomalies3.add(longLat)
-                    else:
-                        self.longLatSet.add(longLat)
+                    self.longLatSet.add(longLat)
             else:
                 self.anomalies1.add(id)
             name = f[self.sitesFieldName]
@@ -154,10 +157,15 @@ class SquadAnalysis:
                 self.nameSet.add(name)
 
             districtName = f[self.sitesFieldUnit]
-            district = self.findDistrict(districtName)
-            if district:
-                if not f.geometry().within(district.geometry()):
-                    results = district.geometry().closestSegmentWithContext(f.geometry().asPoint())
+            districts = self.findDistrict(districtName)
+            found = len(districts)
+            if found == 0:
+                self.anomalies6.add(id)
+            # elif found > 1:
+                # self.anomalies7.add(id)
+            elif found == 1:
+                if not f.geometry().within(districts[0].geometry()):
+                    results = districts[0].geometry().closestSegmentWithContext(f.geometry().asPoint())
                     (sqrDist, minDistPoint, afterVertex) = results
                     distance = QgsDistanceArea()
                     crs = QgsCoordinateReferenceSystem()
@@ -221,10 +229,8 @@ class SquadAnalysis:
                 newFeature[self.STR_ANOMALY_5] = 1
             if id in self.anomalies6:
                 newFeature[self.STR_ANOMALY_6] = 1
-            if id in self.anomalies8:
-                newFeature[self.STR_ANOMALY_8] = 1
-            elif id in self.anomalies7:
-                newFeature[self.STR_ANOMALY_7] = 1
+            # if id in self.anomalies7:
+                # newFeature[self.STR_ANOMALY_7] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
