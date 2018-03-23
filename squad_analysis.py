@@ -58,8 +58,6 @@ class SquadAnalysis:
     STR_ANOMALY_4 = "Anomaly_4"
     STR_ANOMALY_5 = "Anomaly_5"
     STR_ANOMALY_6 = "Anomaly_6"
-    STR_ANOMALY_7 = "Anomaly_7"
-    STR_ANOMALY_8 = "Anomaly_8"
 
     def __init__(
             self,
@@ -96,8 +94,6 @@ class SquadAnalysis:
         self.anomalies4 = set()
         self.anomalies5 = set()
         self.anomalies6 = set()
-        self.anomalies7 = set()
-        self.anomalies8 = set()
 
         self.longLatSet = set()
         self.nameSet = set()
@@ -112,7 +108,6 @@ class SquadAnalysis:
         fields.append(QgsField(self.STR_ANOMALY_4, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_5, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_6, QVariant.Int))
-        # fields.append(QgsField(self.STR_ANOMALY_7, QVariant.Int))
         return fields   
 
     def checkAccuracy(self, number):
@@ -161,8 +156,9 @@ class SquadAnalysis:
             found = len(districts)
             if found == 0:
                 self.anomalies6.add(id)
-            # elif found > 1:
-                # self.anomalies7.add(id)
+            elif found > 1:
+                error = "Multiple District \'" + districtName + "\' in Admin file"
+                raise GeoAlgorithmExecutionException(error)
             elif found == 1:
                 if not f.geometry().within(districts[0].geometry()):
                     results = districts[0].geometry().closestSegmentWithContext(f.geometry().asPoint())
@@ -173,7 +169,7 @@ class SquadAnalysis:
                     distance.setSourceCrs(crs)
                     distance.setEllipsoidalMode(True)
                     distance.setEllipsoid('WGS84')
-                    m = distance.measureLine(f.geometry().asPoint(), minDistPoint) 
+                    m = distance.measureLine(f.geometry().asPoint(), minDistPoint)
                     if m <= 2000:
                         self.anomalies5.add(id)
                     else:
@@ -229,8 +225,6 @@ class SquadAnalysis:
                 newFeature[self.STR_ANOMALY_5] = 1
             if id in self.anomalies6:
                 newFeature[self.STR_ANOMALY_6] = 1
-            # if id in self.anomalies7:
-                # newFeature[self.STR_ANOMALY_7] = 1
 
             # Now we take the features from input layer and add them to the
             # output. Method features() returns an iterator, considering the
