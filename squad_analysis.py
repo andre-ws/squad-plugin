@@ -21,6 +21,8 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import object
 __author__ = 'André William dos Santos Silva'
 __date__ = '2018-03-08'
 __copyright__ = '(C) 2018 by André William dos Santos Silva'
@@ -29,27 +31,28 @@ __copyright__ = '(C) 2018 by André William dos Santos Silva'
 
 __revision__ = '$Format:%H$'
 
-from PyQt4.QtCore import QSettings
-from PyQt4.QtCore import QVariant
-from PyQt4 import QtCore
+from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt import QtCore
 from qgis.core import QgsVectorLayer
 from qgis.core import QgsVectorFileWriter
 from qgis.core import QgsField
 from qgis.core import QgsFields
 from qgis.core import QgsFeature
+from qgis.core import QgsProcessingException
 
 from qgis.core import *
 
 import processing
-from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.core.parameters import ParameterVector
-from processing.core.parameters import ParameterTableField
-from processing.core.outputs import OutputVector
+# from processing.core.GeoAlgorithm import GeoAlgorithm
+# from processing.core.parameters import ParameterVector
+# from processing.core.parameters import ParameterTableField
+# from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
-from processing.tools.vector import VectorWriter
-from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
+# from processing.tools.vector import QgsVectorFileWriter
+# from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
 
-class SquadAnalysis:
+class SquadAnalysis(object):
     STR_LONG_FIELD = 'Point_X_TXT'
     STR_LAT_FIELD = 'Point_Y_TXT'
     STR_ANOMALY_1 = "Anomaly_1"
@@ -61,32 +64,27 @@ class SquadAnalysis:
 
     def __init__(
             self,
-            sitesName_,
+            sitesLayer_,
             sitesFieldUnit_,
             sitesFieldLong_,
             sitesFieldLat_,
             sitesFieldName_,
             sitesFieldId_,
-            adminsName_,
+            adminsLayer_,
             adminsFieldName_,
-            outputName_):
-        self.sitesName = sitesName_
+            sink_,
+            fields_):
+        self.sitesLayer = sitesLayer_
         self.sitesFieldUnit = sitesFieldUnit_
         self.sitesFieldLong = sitesFieldLong_
         self.sitesFieldLat = sitesFieldLat_
         self.sitesFieldName = sitesFieldName_
         self.sitesFieldId = sitesFieldId_
-        self.adminsName = adminsName_
+        self.adminsLayer = adminsLayer_
         self.adminsFieldName = adminsFieldName_
-        self.outputName = outputName_
-        try:
-            self.sitesLayer = processing.getObjectFromUri(self.sitesName)
-        except:
-            raise GeoAlgorithmExecutionException("Invalid Sites Layer")
-        try:
-            self.adminsLayer = processing.getObjectFromUri(self.adminsName)
-        except:
-            raise GeoAlgorithmExecutionException("Invalid Administrative Units layer")
+        self.sink = sink_
+        self.fields = fields_
+        
 
         self.anomalies1 = set()
         self.anomalies2 = set()
@@ -97,18 +95,6 @@ class SquadAnalysis:
 
         self.longLatSet = set()
         self.nameSet = set()
-
-    def createOutputFields(self, baseProvider):
-        fields = QgsFields(baseProvider.fields())
-        fields.append(QgsField(self.STR_LONG_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(self.STR_LAT_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(self.STR_ANOMALY_1, QVariant.Int))
-        fields.append(QgsField(self.STR_ANOMALY_2, QVariant.Int))
-        fields.append(QgsField(self.STR_ANOMALY_3, QVariant.Int))
-        fields.append(QgsField(self.STR_ANOMALY_4, QVariant.Int))
-        fields.append(QgsField(self.STR_ANOMALY_5, QVariant.Int))
-        fields.append(QgsField(self.STR_ANOMALY_6, QVariant.Int))
-        return fields   
 
     def checkAccuracy(self, number):
         ok = False
@@ -129,8 +115,8 @@ class SquadAnalysis:
 
     def checkAnomalies(self):
         i = 0
-        count = self.sitesLayer.dataProvider().featureCount()        
-        features = vector.features(self.sitesLayer)
+        count = self.sitesLayer.featureCount()        
+        features = self.sitesLayer.getFeatures()
         for f in features:
             id = f[self.sitesFieldId]
             x = f[self.sitesFieldLong]
@@ -158,42 +144,43 @@ class SquadAnalysis:
                 self.anomalies6.add(id)
             elif found > 1:
                 error = "Multiple District \'" + districtName + "\' in Admin file"
-                raise GeoAlgorithmExecutionException(error)
+                raise QgsProcessingException(error)
             elif found == 1:
-                if not f.geometry().within(districts[0].geometry()):
-                    results = districts[0].geometry().closestSegmentWithContext(f.geometry().asPoint())
-                    (sqrDist, minDistPoint, afterVertex) = results
-                    distance = QgsDistanceArea()
-                    crs = QgsCoordinateReferenceSystem()
-                    crs.createFromSrsId(4326)
-                    distance.setSourceCrs(crs)
-                    distance.setEllipsoidalMode(True)
-                    distance.setEllipsoid('WGS84')
-                    m = distance.measureLine(f.geometry().asPoint(), minDistPoint)
-                    if m <= 2000:
-                        self.anomalies5.add(id)
-                    else:
-                        self.anomalies6.add(id)
+                if f.hasGeometry() and districts[0].hasGeometry():
+                    if not f.geometry().within(districts[0].geometry()):
+                        results = districts[0].geometry().closestSegmentWithContext(f.geometry().asPoint())
+                        (sqrDist, minDistPoint, afterVertex, _) = results
+                        distance = QgsDistanceArea()
+                        crs = QgsCoordinateReferenceSystem()
+                        crs.createFromSrsId(4326)
+                        distance.setSourceCrs(crs, self.context.transformContext())
+                        # distance.setEllipsoidalMode(True)
+                        distance.setEllipsoid('WGS84')
+                        m = distance.measureLine(f.geometry().asPoint(), minDistPoint)
+                        if m <= 2000:
+                            self.anomalies5.add(id)
+                        else:
+                            self.anomalies6.add(id)
 
             i = i + 1
             percent = ((i/float(count)) * 50)
-            self.progress.setPercentage(percent)
+            self.feedback.setProgress(percent)
 
     def writeOutput(self):
-        sitesProvider = self.sitesLayer.dataProvider()
-        outputFields = self.createOutputFields(sitesProvider)
-        settings = QSettings()
-        systemEncoding = settings.value('/UI/encoding', 'System')
-        writer = processing.VectorWriter(
-            self.outputName,
-            systemEncoding,
-            outputFields,
-            sitesProvider.geometryType(),
-            sitesProvider.crs())
+        # sitesProvider = self.sitesLayer.dataProvider()
+        # outputFields = self.createOutputFields(sitesProvider)
+        # settings = QSettings()
+        # systemEncoding = settings.value('/UI/encoding', 'System')
+        # writer = processing.QgsVectorFileWriter(
+        #     self.outputName,
+        #     systemEncoding,
+        #     outputFields,
+        #     sitesProvider.geometryType(),
+        #     sitesProvider.crs())
 
         i = 0
-        count = self.sitesLayer.dataProvider().featureCount()
-        features = vector.features(self.sitesLayer)
+        count = self.sitesLayer.featureCount()
+        features = self.sitesLayer.getFeatures()
         for f in features:
             id = f[self.sitesFieldId]
             x = f[self.sitesFieldLong]
@@ -201,7 +188,7 @@ class SquadAnalysis:
             if x and y:
                 longLat = str(round(x, 5)) + ',' + str(round(y, 5))
             name = f[self.sitesFieldName]
-            newFeature = QgsFeature(outputFields)
+            newFeature = QgsFeature(self.fields)
             newFeature.setGeometry(f.geometry())
             columns = f.fields()
             for c in columns:
@@ -231,19 +218,20 @@ class SquadAnalysis:
             # selection that might exist in layer and the configuration that
             # indicates should algorithm use only selected features or all
             # of them
-            writer.addFeature(newFeature)
+            self.sink.addFeature(newFeature, QgsFeatureSink.FastInsert)
             i = i + 1
             percent = ((i/float(count)) * 50) + 50
-            self.progress.setPercentage(percent)
-        del writer
+            self.feedback.setProgress(percent)
+        # del writer
 
-    def execute(self, progress):
-        self.progress = progress
-        self.progress.setText('Checking for anomalies...')
+    def execute(self, context, feedback):
+        self.context = context
+        self.feedback = feedback
+        self.feedback.setProgressText('Checking for anomalies...')
         self.checkAnomalies()
-        self.progress.setText('Saving results...')
+        self.feedback.setProgressText('Saving results...')
         self.writeOutput()
-        self.progress.setText('Done!')
+        self.feedback.setProgressText('Done!')
 
         # There is nothing more to do here. We do not have to open the
         # layer that we have created. The framework will take care of

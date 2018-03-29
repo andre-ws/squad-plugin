@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
 __author__ = 'André William dos Santos Silva'
 __date__ = '2018-03-08'
@@ -29,29 +30,31 @@ __copyright__ = '(C) 2018 by André William dos Santos Silva'
 
 __revision__ = '$Format:%H$'
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import QSettings
-from PyQt4.QtCore import QVariant
-from PyQt4.QtCore import QUrl
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QUrl
 from qgis.core import QgsVectorLayer
 from qgis.core import QgsVectorFileWriter
 from qgis.core import QgsField
 from qgis.core import QgsFields
 from qgis.core import QgsFeature
 
-from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.core.parameters import ParameterVector
-from processing.core.parameters import ParameterTableField
-from processing.core.outputs import OutputVector
+from qgis.core import (QgsProcessing,
+                       QgsProcessingAlgorithm,
+                       QgsProcessingException,
+                       QgsProcessingParameterField,
+                       QgsProcessingParameterFeatureSink,
+                       QgsProcessingParameterFeatureSource)
 from processing.tools import dataobjects, vector
 from processing.gui.AlgorithmDialog import AlgorithmDialog
 
 import os
-import resources
-from parameters_dict import parameters_desc
-from squad_analysis import SquadAnalysis
+from . import resources
+from .parameters_dict import parameters_desc
+from .squad_analysis import SquadAnalysis
 
-class SquadToolAlgorithm(GeoAlgorithm):
+class SquadToolAlgorithm(QgsProcessingAlgorithm):
     """This is an example algorithm that takes a vector layer and
     creates a new one just with just those features of the input
     layer that are selected.
@@ -78,6 +81,40 @@ class SquadToolAlgorithm(GeoAlgorithm):
     ADMIN_UNIT_NAME_FIELD = 'ADMIN_UNIT_NAME_FIELD'
     OUTPUT_LAYER = 'OUTPUT_LAYER'
 
+    def name(self):
+        """
+        Returns the algorithm name, used for identifying the algorithm. This
+        string should be fixed for the algorithm, and must not be localised.
+        The name should be unique within each provider. Names should contain
+        lowercase alphanumeric characters only and no spaces or other
+        formatting characters.
+        """
+        return 'SquadTool'
+
+    def displayName(self):
+        """
+        Returns the translated algorithm name, which should be used for any
+        user-visible display of the algorithm name.
+        """
+        return self.name()
+
+    def group(self):
+        """
+        Returns the name of the group this algorithm belongs to. This string
+        should be localised.
+        """
+        return self.groupId()
+
+    def groupId(self):
+        """
+        Returns the unique ID of the group this algorithm belongs to. This
+        string should be fixed for the algorithm, and must not be localised.
+        The group id should be unique within each provider. Group id should
+        contain lowercase alphanumeric characters only and no spaces or other
+        formatting characters.
+        """        
+        return 'squad_tool'
+
     def getCustomParametersDialog(self):
         customDialog = AlgorithmDialog(self)
         customDialog.textShortHelp.setFixedWidth(450)
@@ -92,55 +129,114 @@ class SquadToolAlgorithm(GeoAlgorithm):
     def getParameterDescriptions(self):
         return parameters_desc
 
-    def defineCharacteristics(self):
+    def initAlgorithm(self, config):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
         """
 
         # The name that the user will see in the toolbox
-        self.name = 'SQUAD Tool'
+        # self.name = 'SQUAD Tool'
 
         # The branch of the toolbox under which the algorithm will appear
-        self.group = 'Analysis'
+        # self.group = 'Analysis'
 
         # We add the input vector layer. It can have any kind of geometry
         # It is a mandatory (not optional) one, hence the False argument
-        self.addParameter(ParameterVector(self.SITES_LAYER,
-            self.tr('Site File'), [ParameterVector.VECTOR_TYPE_ANY], False))
-        self.addParameter(ParameterTableField(self.SITE_ADMIN_UNIT_FIELD,
-            self.tr('Site Admin Unit Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
-        self.addParameter(ParameterTableField(self.SITE_LONGITUDE_FIELD,
-            self.tr('Site Longitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_NUMBER, False))
-        self.addParameter(ParameterTableField(self.SITE_LATITUDE_FIELD,
-            self.tr('Site Latitude Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_NUMBER, False))
-        self.addParameter(ParameterTableField(self.SITE_NAME_FIELD,
-            self.tr('Site Name Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
-        self.addParameter(ParameterTableField(self.SITE_ID_FIELD,
-            self.tr('Site ID Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
-        self.addParameter(ParameterVector(self.ADMIN_UNITS_LAYER,
-            self.tr('Administrative Units File'), [ParameterVector.VECTOR_TYPE_ANY], False))
-        self.addParameter(ParameterTableField(self.ADMIN_UNIT_NAME_FIELD,
-            self.tr('Admin Unit Name Field'), self.ADMIN_UNITS_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
+        self.addParameter(QgsProcessingParameterFeatureSource(
+            self.SITES_LAYER,
+            'Site File',
+            [QgsProcessing.TypeVectorAnyGeometry]))
+        self.addParameter(QgsProcessingParameterField(
+            self.SITE_ADMIN_UNIT_FIELD,
+            'Site Admin Unit Field',
+            None,
+            self.SITES_LAYER,
+            QgsProcessingParameterField.String))
+        self.addParameter(QgsProcessingParameterField(
+            self.SITE_LONGITUDE_FIELD,
+            'Site Longitude Field',
+            None,
+            self.SITES_LAYER,
+            QgsProcessingParameterField.Numeric))
+        self.addParameter(QgsProcessingParameterField(
+            self.SITE_LATITUDE_FIELD,
+            'Site Latitude Field',
+            None,
+            self.SITES_LAYER,
+            QgsProcessingParameterField.Numeric))
+        self.addParameter(QgsProcessingParameterField(
+            self.SITE_NAME_FIELD,
+            'Site Name Field',
+            None,
+            self.SITES_LAYER,
+            QgsProcessingParameterField.String))
+        self.addParameter(QgsProcessingParameterField(
+            self.SITE_ID_FIELD,
+            'Site ID Field',
+            None,
+            self.SITES_LAYER,
+            QgsProcessingParameterField.String))
+        self.addParameter(QgsProcessingParameterFeatureSource(
+            self.ADMIN_UNITS_LAYER,
+            'Administrative Units File',
+            [QgsProcessing.TypeVectorAnyGeometry]))
+        self.addParameter(QgsProcessingParameterField(
+            self.ADMIN_UNIT_NAME_FIELD,
+            'Admin Unit Name Field',
+            None, 
+            self.ADMIN_UNITS_LAYER, 
+            QgsProcessingParameterField.String))
 
         # We add a vector layer as output
-        self.addOutput(OutputVector(self.OUTPUT_LAYER,
-            self.tr('Site Anomalies Output')))
+        self.addParameter(QgsProcessingParameterFeatureSink(
+            self.OUTPUT_LAYER,
+            'Site Anomalies Output'),
+            True)
 
-    def processAlgorithm(self, progress):
+    def createOutputFields(self, baseProvider):
+        fields = baseProvider.fields()
+        fields.append(QgsField(SquadAnalysis.STR_LONG_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(SquadAnalysis.STR_LAT_FIELD, QVariant.String, len=100))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_1, QVariant.Int))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_2, QVariant.Int))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_3, QVariant.Int))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_4, QVariant.Int))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_5, QVariant.Int))
+        fields.append(QgsField(SquadAnalysis.STR_ANOMALY_6, QVariant.Int))
+        return fields   
+
+    def processAlgorithm(self, parameters, context, feedback):
         """Here is where the processing itself takes place."""
-
         # The first thing to do is retrieve the values of the parameters
         # entered by the user
-        sitesName = self.getParameterValue(self.SITES_LAYER)
-        sitesFieldUnit = self.getParameterValue(self.SITE_ADMIN_UNIT_FIELD)
-        sitesFieldLong = self.getParameterValue(self.SITE_LONGITUDE_FIELD)
-        sitesFieldLat = self.getParameterValue(self.SITE_LATITUDE_FIELD)
-        sitesFieldName = self.getParameterValue(self.SITE_NAME_FIELD)
-        sitesFieldId = self.getParameterValue(self.SITE_ID_FIELD)
-        adminsName = self.getParameterValue(self.ADMIN_UNITS_LAYER)
-        adminsFieldName = self.getParameterValue(self.ADMIN_UNIT_NAME_FIELD)
-        outputName = self.getOutputValue(self.OUTPUT_LAYER)
-        
+        sitesLayer = self.parameterAsSource(parameters, self.SITES_LAYER, context)
+        sitesFieldUnit = self.parameterAsString(parameters, self.SITE_ADMIN_UNIT_FIELD, context)
+        sitesFieldLong = self.parameterAsString(parameters, self.SITE_LONGITUDE_FIELD, context)
+        sitesFieldLat = self.parameterAsString(parameters, self.SITE_LATITUDE_FIELD, context)
+        sitesFieldName = self.parameterAsString(parameters, self.SITE_NAME_FIELD, context)
+        sitesFieldId = self.parameterAsString(parameters, self.SITE_ID_FIELD, context)
+        adminsLayer = self.parameterAsSource(parameters, self.ADMIN_UNITS_LAYER, context)
+        adminsFieldName = self.parameterAsString(parameters, self.ADMIN_UNIT_NAME_FIELD, context)
+
+        # try:
+        #     sitesLayer = processing.getObjectFromUri(sitesName)
+        # except:
+        #     raise QgsProcessingException("Invalid Sites Layer")
+        # try:
+        #     adminsLayer = processing.getObjectFromUri(adminsName)
+        # except:
+        #     raise QgsProcessingException("Invalid Administrative Units layer")
+
+        fields = self.createOutputFields(sitesLayer)
+        (sink, dest_id) = self.parameterAsSink(
+            parameters,
+            self.OUTPUT_LAYER,
+            context,
+            fields,
+            sitesLayer.wkbType(),
+            sitesLayer.sourceCrs())
+        #outputName
+
         # Input layers values are always a string with its location.
         # That string can be converted into a QGIS object (a
         # QgsVectorLayer in this case) using the
@@ -150,13 +246,18 @@ class SquadToolAlgorithm(GeoAlgorithm):
         
         # Call functions
         analysis = SquadAnalysis(
-            sitesName,
+            sitesLayer,
             sitesFieldUnit,
             sitesFieldLong,
             sitesFieldLat,
             sitesFieldName,
             sitesFieldId,
-            adminsName,
+            adminsLayer,
             adminsFieldName,
-            outputName)
-        analysis.execute(progress)
+            sink,
+            fields)
+        analysis.execute(context, feedback)
+        return {self.OUTPUT_LAYER: dest_id}
+
+    def createInstance(self):
+        return SquadToolAlgorithm()        

@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
 __author__ = 'André William dos Santos Silva'
 __date__ = '2018-03-08'
@@ -29,25 +30,23 @@ __copyright__ = '(C) 2018 by André William dos Santos Silva'
 
 __revision__ = '$Format:%H$'
 
-from processing.core.AlgorithmProvider import AlgorithmProvider
-from processing.core.ProcessingConfig import Setting, ProcessingConfig
-from squad_tool_algorithm import SquadToolAlgorithm
+from qgis.core import QgsProcessingProvider
+# from processing.core.ProcessingConfig import Setting, ProcessingConfig
+from .squad_tool_algorithm import SquadToolAlgorithm
 
 
-class SquadToolProvider(AlgorithmProvider):
+class SquadToolProvider(QgsProcessingProvider):
 
-    MY_DUMMY_SETTING = 'MY_DUMMY_SETTING'
+    # MY_DUMMY_SETTING = 'MY_DUMMY_SETTING'
 
     def __init__(self):
-        AlgorithmProvider.__init__(self)
+        QgsProcessingProvider.__init__(self)
 
         # Deactivate provider by default
         self.activate = False
 
         # Load algorithms
         self.alglist = [SquadToolAlgorithm()]
-        for alg in self.alglist:
-            alg.provider = self
 
     def initializeSettings(self):
         """In this method we add settings needed to configure our
@@ -57,38 +56,52 @@ class SquadToolProvider(AlgorithmProvider):
         or automatically adding a setting for activating or
         deactivating the algorithms in the provider.
         """
-        AlgorithmProvider.initializeSettings(self)
-        ProcessingConfig.addSetting(Setting('Example algorithms',
-            SquadToolProvider.MY_DUMMY_SETTING,
-            'Example setting', 'Default value'))
+        # AlgorithmProvider.initializeSettings(self)
+        # ProcessingConfig.addSetting(Setting('Example algorithms',
+        #     SquadToolProvider.MY_DUMMY_SETTING,
+        #     'Example setting', 'Default value'))
 
     def unload(self):
         """Setting should be removed here, so they do not appear anymore
         when the plugin is unloaded.
         """
-        AlgorithmProvider.unload(self)
-        ProcessingConfig.removeSetting(
-            SquadToolProvider.MY_DUMMY_SETTING)
+        # AlgorithmProvider.unload(self)
+        # ProcessingConfig.removeSetting(
+        #     SquadToolProvider.MY_DUMMY_SETTING)
+        pass
 
-    def getName(self):
-        """This is the name that will appear on the toolbox group.
-
-        It is also used to create the command line name of all the
-        algorithms from this provider.
+    def id(self):
         """
-        return 'SQUAD Toolbox'
-
-    def getDescription(self):
-        """This is the provired full name.
+        Returns the unique provider id, used for identifying the provider. This
+        string should be a unique, short, character only string, eg "qgis" or
+        "gdal". This string should not be localised.
         """
-        return 'SQUAD'
+        return 'squad'        
 
-    def getIcon(self):
+    def name(self):
+        """
+        Returns the provider name, which is used to describe the provider
+        within the GUI.
+
+        This string should be short (e.g. "Lastools") and localised.
+        """
+        return 'SquadTool'
+
+    def longName(self):
+        """
+        Returns the a longer version of the provider name, which can include
+        extra details such as version numbers. E.g. "Lastools LIDAR tools
+        (version 2.2.1)". This string should be localised. The default
+        implementation returns the same string as name().
+        """
+        return self.name()        
+
+    # def icon(self):
         """We return the default icon.
         """
-        return AlgorithmProvider.getIcon(self)
+        # return AlgorithmProvider.getIcon(self)
 
-    def _loadAlgorithms(self):
+    def loadAlgorithms(self):
         """Here we fill the list of algorithms in self.algs.
 
         This method is called whenever the list of algorithms should
@@ -102,4 +115,5 @@ class SquadToolProvider(AlgorithmProvider):
         even if the list does not change, since the self.algs list is
         cleared before calling this method.
         """
-        self.algs = self.alglist
+        for alg in self.alglist:
+            self.addAlgorithm( alg )

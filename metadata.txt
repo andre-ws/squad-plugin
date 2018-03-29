@@ -8,7 +8,7 @@
 
 [general]
 name=SQUAD Tool
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Spatial Quality and Anomalies Diagnosis
 version=0.1
 author=André William dos Santos Silva
