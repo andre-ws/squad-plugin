@@ -149,31 +149,31 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterField(
             self.SITE_ADMIN_UNIT_FIELD,
             'Site Admin Unit Field',
-            None,
+            '',
             self.SITES_LAYER,
             QgsProcessingParameterField.String))
         self.addParameter(QgsProcessingParameterField(
             self.SITE_LONGITUDE_FIELD,
             'Site Longitude Field',
-            None,
+            '',
             self.SITES_LAYER,
             QgsProcessingParameterField.Numeric))
         self.addParameter(QgsProcessingParameterField(
             self.SITE_LATITUDE_FIELD,
             'Site Latitude Field',
-            None,
+            '',
             self.SITES_LAYER,
             QgsProcessingParameterField.Numeric))
         self.addParameter(QgsProcessingParameterField(
             self.SITE_NAME_FIELD,
             'Site Name Field',
-            None,
+            '',
             self.SITES_LAYER,
             QgsProcessingParameterField.String))
         self.addParameter(QgsProcessingParameterField(
             self.SITE_ID_FIELD,
             'Site ID Field',
-            None,
+            '',
             self.SITES_LAYER,
             QgsProcessingParameterField.String))
         self.addParameter(QgsProcessingParameterFeatureSource(
@@ -183,7 +183,7 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterField(
             self.ADMIN_UNIT_NAME_FIELD,
             'Admin Unit Name Field',
-            None, 
+            '', 
             self.ADMIN_UNITS_LAYER, 
             QgsProcessingParameterField.String))
 
