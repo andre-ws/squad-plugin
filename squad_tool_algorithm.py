@@ -106,7 +106,8 @@ class SquadToolAlgorithm(GeoAlgorithm):
         # We add the input vector layer. It can have any kind of geometry
         # It is a mandatory (not optional) one, hence the False argument
         self.addParameter(ParameterVector(self.SITES_LAYER,
-            self.tr('Site File'), [ParameterVector.VECTOR_TYPE_ANY], False))
+            self.tr('Site File'), [ParameterVector.VECTOR_TYPE_POINT], False))
+        # self.setParameterValue(self.SITES_LAYER, None)
         self.addParameter(ParameterTableField(self.SITE_ADMIN_UNIT_FIELD,
             self.tr('Site Admin Unit Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
         self.addParameter(ParameterTableField(self.SITE_LONGITUDE_FIELD,
@@ -118,7 +119,7 @@ class SquadToolAlgorithm(GeoAlgorithm):
         self.addParameter(ParameterTableField(self.SITE_ID_FIELD,
             self.tr('Site ID Field'), self.SITES_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
         self.addParameter(ParameterVector(self.ADMIN_UNITS_LAYER,
-            self.tr('Administrative Units File'), [ParameterVector.VECTOR_TYPE_ANY], False))
+            self.tr('Administrative Units File'), [ParameterVector.VECTOR_TYPE_POLYGON], False))
         self.addParameter(ParameterTableField(self.ADMIN_UNIT_NAME_FIELD,
             self.tr('Admin Unit Name Field'), self.ADMIN_UNITS_LAYER, ParameterTableField.DATA_TYPE_STRING, False))
 
