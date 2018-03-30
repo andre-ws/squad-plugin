@@ -120,11 +120,14 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         customDialog.textShortHelp.setFixedWidth(450)
         return customDialog
 
-    def shortHelp(self):
+    def shortHelpString(self):
         DIRNAME = os.path.dirname(__file__)
         path = os.path.join(DIRNAME, 'help.html')
-        if os.path.exists(path):
-            return open(path).read()
+        with open(path) as f:
+            return f.read()
+
+    def helpString(self):
+        return 'https://github.com/andre-ws/squad-plugin'
 
     def getParameterDescriptions(self):
         return parameters_desc
