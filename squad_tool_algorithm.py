@@ -55,18 +55,6 @@ from .parameters_dict import parameters_desc
 from .squad_analysis import SquadAnalysis
 
 class SquadToolAlgorithm(QgsProcessingAlgorithm):
-    """This is an example algorithm that takes a vector layer and
-    creates a new one just with just those features of the input
-    layer that are selected.
-
-    It is meant to be used as an example of how to create your own
-    algorithms and explain methods and variables used to do it. An
-    algorithm like this will be available in all elements, and there
-    is not need for additional work.
-
-    All Processing algorithms should extend the GeoAlgorithm class.
-    """
-
     # Constants used to refer to parameters and outputs. They will be
     # used when calling the algorithm from another algorithm, or when
     # calling from the QGIS console.
@@ -115,11 +103,6 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         """        
         return 'squad_tool'
 
-    def getCustomParametersDialog(self):
-        customDialog = AlgorithmDialog(self)
-        customDialog.textShortHelp.setFixedWidth(450)
-        return customDialog
-
     def shortHelpString(self):
         DIRNAME = os.path.dirname(__file__)
         path = os.path.join(DIRNAME, 'help.html')
@@ -148,7 +131,7 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(
             self.SITES_LAYER,
             'Site File',
-            [QgsProcessing.TypeVectorAnyGeometry]))
+            [QgsProcessing.TypeVectorPoint]))
         self.addParameter(QgsProcessingParameterField(
             self.SITE_ADMIN_UNIT_FIELD,
             'Site Admin Unit Field',
@@ -182,7 +165,7 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSource(
             self.ADMIN_UNITS_LAYER,
             'Administrative Units File',
-            [QgsProcessing.TypeVectorAnyGeometry]))
+            [QgsProcessing.TypeVectorPolygon]))
         self.addParameter(QgsProcessingParameterField(
             self.ADMIN_UNIT_NAME_FIELD,
             'Admin Unit Name Field',

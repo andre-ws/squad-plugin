@@ -35,9 +35,11 @@ import os
 import sys
 import inspect
 
+
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.QtWidgets import QTextBrowser
 from processing import Processing
 from processing.gui.AlgorithmDialog import AlgorithmDialog
 from qgis.core import QgsApplication
@@ -171,13 +173,10 @@ class SquadToolPlugin(object):
         # self.iface.removeToolBarIcon(self.action)
 
     def run(self):
-        # alg = Processing.getAlgorithm("squadtoolbox:squadtool")
         alg = QgsApplication.processingRegistry().algorithmById('squad:SquadTool')
-        # Instantiate the commander window and open the algorithm's interface 
-        # cw = CommanderWindow(self.iface.mainWindow(), self.iface.mapCanvas())
         if alg is not None:
             dlg = AlgorithmDialog(alg)
-            # cw.runAlgorithm(alg)
+            dlg.findChild(QTextBrowser, 'textShortHelp').setFixedWidth(460);
             dlg.show()
         else:
             raise QgsProcessingException('Algorithm Provider not found')
