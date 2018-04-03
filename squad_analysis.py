@@ -109,6 +109,7 @@ class SquadAnalysis(object):
         districts = []
         exp = QgsExpression("{} = \'{}\'".format(self.adminsFieldName, name))
         request = QgsFeatureRequest(exp)
+        request.setInvalidGeometryCheck(QgsFeatureRequest.GeometrySkipInvalid)
         for d in self.adminsLayer.getFeatures(request):
             districts.append(d)
         return districts
