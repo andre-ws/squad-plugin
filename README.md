@@ -11,21 +11,13 @@ The Spatial Quality and Anomalies Diagnosis (SQUAD) tool checks for six anomalie
 
 # Installation (manual)
 
-## Downloading release code (for Windows users)
+## Downloading release code 
 
 - Download the code from here
 - Extract from zip file
 - Rename folder to squad-plugin
 - On QGIS, go to menu Settings -> User profiles -> Open active profile folder
 - On the directory that will open, you can navigate to python -> plugins and paste the plugin folder there
-
-## Cloning repo (for Linux/Mac users)
-
-- Open a terminal.
-- Execute:
-- git clone https://github.com/andre-ws/squad-plugin.git
-  - cd squad-plugin
-  - make install
 
 ## Enabling plugin
 
