@@ -100,8 +100,6 @@ class SquadAnalysis:
 
     def createOutputFields(self, baseProvider):
         fields = QgsFields(baseProvider.fields())
-        fields.append(QgsField(self.STR_LONG_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(self.STR_LAT_FIELD, QVariant.String, len=100))
         fields.append(QgsField(self.STR_ANOMALY_1, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_2, QVariant.Int))
         fields.append(QgsField(self.STR_ANOMALY_3, QVariant.Int))
@@ -210,8 +208,6 @@ class SquadAnalysis:
 
             txtLong = f[self.sitesFieldLong]
             txtLat = f[self.sitesFieldLat]
-            newFeature[self.STR_LONG_FIELD] = txtLong
-            newFeature[self.STR_LAT_FIELD] = txtLat
 
             if id in self.anomalies1:
                 newFeature[self.STR_ANOMALY_1] = 1
