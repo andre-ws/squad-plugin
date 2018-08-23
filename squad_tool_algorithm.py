@@ -181,8 +181,6 @@ class SquadToolAlgorithm(QgsProcessingAlgorithm):
 
     def createOutputFields(self, baseProvider):
         fields = baseProvider.fields()
-        fields.append(QgsField(SquadAnalysis.STR_LONG_FIELD, QVariant.String, len=100))
-        fields.append(QgsField(SquadAnalysis.STR_LAT_FIELD, QVariant.String, len=100))
         fields.append(QgsField(SquadAnalysis.STR_ANOMALY_1, QVariant.Int))
         fields.append(QgsField(SquadAnalysis.STR_ANOMALY_2, QVariant.Int))
         fields.append(QgsField(SquadAnalysis.STR_ANOMALY_3, QVariant.Int))

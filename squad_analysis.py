@@ -44,17 +44,9 @@ from qgis.core import QgsProcessingException
 from qgis.core import *
 
 import processing
-# from processing.core.GeoAlgorithm import GeoAlgorithm
-# from processing.core.parameters import ParameterVector
-# from processing.core.parameters import ParameterTableField
-# from processing.core.outputs import OutputVector
 from processing.tools import dataobjects, vector
-# from processing.tools.vector import QgsVectorFileWriter
-# from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
 
 class SquadAnalysis(object):
-    STR_LONG_FIELD = 'Point_X_TXT'
-    STR_LAT_FIELD = 'Point_Y_TXT'
     STR_ANOMALY_1 = "Anomaly_1"
     STR_ANOMALY_2 = "Anomaly_2"
     STR_ANOMALY_3 = "Anomaly_3"
@@ -155,7 +147,6 @@ class SquadAnalysis(object):
                         crs = QgsCoordinateReferenceSystem()
                         crs.createFromSrsId(4326)
                         distance.setSourceCrs(crs, self.context.transformContext())
-                        # distance.setEllipsoidalMode(True)
                         distance.setEllipsoid('WGS84')
                         m = distance.measureLine(f.geometry().asPoint(), minDistPoint)
                         if m <= 2000:
@@ -168,17 +159,6 @@ class SquadAnalysis(object):
             self.feedback.setProgress(percent)
 
     def writeOutput(self):
-        # sitesProvider = self.sitesLayer.dataProvider()
-        # outputFields = self.createOutputFields(sitesProvider)
-        # settings = QSettings()
-        # systemEncoding = settings.value('/UI/encoding', 'System')
-        # writer = processing.QgsVectorFileWriter(
-        #     self.outputName,
-        #     systemEncoding,
-        #     outputFields,
-        #     sitesProvider.geometryType(),
-        #     sitesProvider.crs())
-
         i = 0
         count = self.sitesLayer.featureCount()
         features = self.sitesLayer.getFeatures()
@@ -195,11 +175,6 @@ class SquadAnalysis(object):
             for c in columns:
                 value = f[c.name()]
                 newFeature[c.name()] = value
-
-            txtLong = f[self.sitesFieldLong]
-            txtLat = f[self.sitesFieldLat]
-            newFeature[self.STR_LONG_FIELD] = txtLong
-            newFeature[self.STR_LAT_FIELD] = txtLat
 
             if id in self.anomalies1:
                 newFeature[self.STR_ANOMALY_1] = 1
@@ -223,7 +198,6 @@ class SquadAnalysis(object):
             i = i + 1
             percent = ((i/float(count)) * 50) + 50
             self.feedback.setProgress(percent)
-        # del writer
 
     def execute(self, context, feedback):
         self.context = context
