@@ -10,7 +10,7 @@
 name=SQUAD Tool v3
 qgisMinimumVersion=3.0
 description=Spatial Quality and Anomalies Diagnosis
-version=0.1
+version=1.0
 author=André William dos Santos Silva
 email=wss.andre@gmail.com
 
