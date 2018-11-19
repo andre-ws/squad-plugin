@@ -213,8 +213,9 @@ class SquadAnalysis:
                 newFeature[self.STR_ANOMALY_1] = 1
             elif id in self.anomalies2:
                 newFeature[self.STR_ANOMALY_2] = 1
-            if longLat in self.anomalies3:
+            elif longLat in self.anomalies3:
                 newFeature[self.STR_ANOMALY_3] = 1
+                
             if name in self.anomalies4:
                 newFeature[self.STR_ANOMALY_4] = 1
             if id in self.anomalies5:
